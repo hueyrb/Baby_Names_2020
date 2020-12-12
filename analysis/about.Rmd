@@ -6,5 +6,4 @@ output:
 editor_options:
   chunk_output_type: console
 ---
-
-Describe your project.
+This project is a collaborate effort with Donald B. Miles to evaluate whether climate might affect the choice of baby names, mainly for girls with month names.
