@@ -1,0 +1,72 @@
+---
+title: "Plot_N_month_names_by_sex_by_month 2020-12-12"
+author: "Ray Huey"
+date: "2020-12-12"
+output: 
+  html_document:
+    code_download: TRUE
+    toc: true
+    toc_float: true
+theme: cerulean
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Load packages
+```{r load packages}
+pacman::p_load(tidyverse, here, lubridate, scales, vroom, knitr, ggtext)
+```
+Load data -- compiled from extract_month_names_boys_girls.Rmd
+```{r}
+tmp <- read_csv(here::here("data/name_files", "sum_month_names_by_month_sex.csv"))
+```
+Line plot of months by name --    DON'T USE, BAR PLOT IS BETTER (BELOW)
+```{r Line_plot_N_names_month_both_sexes_2020-12-12, dev = c('png', 'pdf')}
+
+# reorder names in month order
+tmp$month <- factor(tmp$name, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))
+
+sex_colors <- c("#00AA5A", "#AA9000") # greenish for girls (spring), browish for boys
+
+gg <- ggplot(data = tmp, aes(month, tot, color = sex, group = sex)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  theme_classic(base_size = 16) +
+  labs(x = "Month", y = "Total number of names") +
+  scale_y_continuous(labels = comma) +
+  scale_color_manual(values = sex_colors, labels = c("girls", "boys")) +
+  scale_x_discrete(labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) +
+  # annotate("text", 8, 50000, label = "boys", col = "#993300", size = 8) +
+  # annotate("text", 4, 250000, label = "girls", col = "#E69F00", size = 8) +
+  theme(legend.position = "none")
+
+gg
+# ggsave(docs/pdf_images/"N_names_per_month_2020-12-12.pdf", width = 7, height = 5, units = "in")
+```
+Grouped bar plot Number of girls and boys with month names. 
+```{r Bar_plot_N_names_month_both_sexes_2020-12-12, dev = c('png', 'pdf')}
+grouped <- tmp %>%
+  ggplot(aes(x = forcats::fct_rev(factor(month)), y = tot, fill = sex)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  theme_classic(base_size = 16) +
+  labs(
+    x = "Month names",
+    y = "Total babies",
+    title = "<span style = 'font-size:14pt; font-family:Helvetica;'>
+More <span style = 'color:#00AA5A;'>girls</span>
+have month names than do <span style = 'color:#AA9000;'>boys</span>",
+    caption = "USA states"
+  ) +
+  scale_y_continuous(labels = comma) +
+  scale_fill_manual(values = sex_colors) +
+  theme(legend.position = "none") +
+  coord_flip() +
+  theme(
+    plot.title.position = "plot",
+    plot.title = element_markdown(size = 11, lineheight = 1.2),
+    plot.caption = element_text(face = "italic", size = 9)
+  )
+
+grouped
+# ggsave("docs/pdf_images/GroupedBar_N_boys_girls_month_names_2020-12- 12.pdf", width = 7, height = 5, units = "in")
+```
